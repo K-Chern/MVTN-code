@@ -4,6 +4,7 @@ import torch.optim as optim
 import torch.nn as nn
 import os,shutil,json
 import argparse
+parser = argparse.ArgumentParser()
 import gc
 
 from tools.Trainer import ModelNetTrainer
@@ -17,7 +18,7 @@ torch.backends.cudnn.benchmark = True
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-name", "--name", type=str, help="Name of the experiment", default="MVCNN")
-parser.add_argument("-bs", "--batchSize", type=int, help="Batch size for the second stage", default=2)  # it will be *12 images in each batch for mvcnn
+parser.add_argument("-bs", "--batchSize", type=int, help="Batch size for the second stage", default=4)  # it will be *12 images in each batch for mvcnn
 parser.add_argument("-num_models", type=int, help="number of models per class", default=1000)
 parser.add_argument("-lr", type=float, help="learning rate", default=5e-5)
 parser.add_argument("-weight_decay", type=float, help="weight decay", default=0.0)
@@ -26,6 +27,7 @@ parser.add_argument("-cnn_name", "--cnn_name", type=str, help="cnn model name", 
 parser.add_argument("-num_views", type=int, help="number of views", default=12)
 parser.add_argument("-train_path", type=str, default="modelnet40_images_new_12x/*/train")
 parser.add_argument("-val_path", type=str, default="modelnet40_images_new_12x/*/test")
+parser.add_argument('-num_epochs', type=int, default=30, help='number of training epochs')
 parser.set_defaults(train=False)
 
 def create_folder(log_dir):
@@ -61,10 +63,10 @@ if __name__ == '__main__':
     n_models_train = args.num_models*args.num_views
 
     train_dataset = SingleImgDataset(args.train_path, scale_aug=False, rot_aug=False, num_models=n_models_train, num_views=args.num_views)
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=64, shuffle=True, num_workers=0)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=0)
 
     val_dataset = SingleImgDataset(args.val_path, scale_aug=False, rot_aug=False, test_mode=True)
-    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=64, shuffle=False, num_workers=0)
+    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=0)
     print('num_train_files: '+str(len(train_dataset.filepaths)))
     print('num_val_files: '+str(len(val_dataset.filepaths)))
     trainer = ModelNetTrainer(cnet, train_loader, val_loader, optimizer, nn.CrossEntropyLoss(), 'svcnn', log_dir, num_views=1)
