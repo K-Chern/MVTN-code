@@ -27,7 +27,7 @@ parser.add_argument("-cnn_name", "--cnn_name", type=str, help="cnn model name", 
 parser.add_argument("-num_views", type=int, help="number of views", default=12)
 parser.add_argument("-train_path", type=str, default="modelnet40_images_new_12x/*/train")
 parser.add_argument("-val_path", type=str, default="modelnet40_images_new_12x/*/test")
-parser.add_argument('-num_epochs', type=int, default=30, help='number of training epochs')
+parser.add_argument('-num_epochs', type=int, default=3, help='number of training epochs')
 parser.set_defaults(train=False)
 
 def create_folder(log_dir):
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     print('num_train_files: '+str(len(train_dataset.filepaths)))
     print('num_val_files: '+str(len(val_dataset.filepaths)))
     trainer = ModelNetTrainer(cnet, train_loader, val_loader, optimizer, nn.CrossEntropyLoss(), 'svcnn', log_dir, num_views=1)
-    trainer.train(30)
+    trainer.train(3)
 
     # STAGE 2
     log_dir = args.name+'_stage_2'
@@ -86,7 +86,7 @@ if __name__ == '__main__':
 val_dataset = MultiviewImgDataset(args.val_path, scale_aug=False, rot_aug=False, num_views=args.num_views)
 val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=args.batchSize, shuffle=False, num_workers=0)
 
-cnet.to(device)
+cnet_2.to(device)
 
 print('num_train_files: '+str(len(train_dataset.filepaths)))
 print('num_val_files: '+str(len(val_dataset.filepaths)))
@@ -94,7 +94,7 @@ trainer = ModelNetTrainer(cnet_2, train_loader, val_loader, optimizer, nn.CrossE
 
 trainer.to(device)
 
-trainer.train(30)
+trainer.train(3)
 
 
 
